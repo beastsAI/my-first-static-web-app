@@ -6,13 +6,18 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
     });
+    
     return () => unsubscribe();
   }, []);
+
+  if (loading) return <p>Loading...</p>;
 
   const logout = () => {
     signOut(auth);
@@ -21,6 +26,9 @@ export const AuthProvider = ({ children }) => {
   return (
     <AuthContext.Provider value={{ user, logout }}>
       {children}
+      <div>
+      {user ? <h2>Welcome, {user.email}</h2> : <h2>Please log in <a href="login"> here</a></h2>}
+    </div>
     </AuthContext.Provider>
   );
 };
